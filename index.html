@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Inviti Prof - Ultimo Anno</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts per stili unici delle materie -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Caveat:wght@600;700&family=Fira+Code:wght@400;700&family=Playfair+Display:ital,wght@0,600;0,800;1,500&family=Montserrat:wght@400;600;800&family=Architects+Daughter&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        /* Forza la proporzione 3:4 esatta */
+        .card-ratio-3-4 {
+            width: 390px;
+            height: 520px;
+        }
+        /* Custom scrollbar per la lista */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <!-- Navbar / Header -->
+    <header class="bg-slate-950 border-b border-slate-800 py-5 px-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🎓</span>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white">L'ULTIMA CENA DEI PROF</h1>
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Inviti personalizzati in formato 3:4 per la mangiata finale</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportAllData()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                    💾 Salva Dati JSON
+                </button>
+                <button onclick="downloadAllImages()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-extrabold tracking-wider uppercase transition shadow-lg shadow-indigo-500/20">
+                    ⚡ Scarica Tutti in PNG
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenuto Principale -->
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- COLONNA SINISTRA: Configurazione dati e lista prof -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- 1. DETTAGLI EVENTO (uguali per tutti) -->
+            <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-4">
+                    <span class="text-lg">📍</span>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Dettagli Comuni della Mangiata</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Classe / Scuola</label>
+                        <input type="text" id="event-class" value="I Ragazzi della 5°A" oninput="updateCurrentPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Luogo / Ristorante</label>
+                        <input type="text" id="event-location" value="Trattoria 'Il Cantuccio', Via Garibaldi 12" oninput="updateCurrentPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Data</label>
+                            <input type="text" id="event-date" value="Sabato 13 Giugno" oninput="updateCurrentPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Orario</label>
+                            <input type="text" id="event-time" value="Ore 20:30" oninput="updateCurrentPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Nota in fondo (es. 'Sarete nostri ospiti d'onore!')</label>
+                        <input type="text" id="event-note" value="N.B. Sarete nostri graditissimi ospiti!" oninput="updateCurrentPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. AGGIUNGI PROFESSORE -->
+            <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-4">
+                    <span class="text-lg">👤</span>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Aggiungi / Modifica Professore</h2>
+                </div>
+                
+                <form id="prof-form" onsubmit="addProfessor(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Titolo e Nome</label>
+                            <input type="text" id="prof-name" placeholder="Prof. Rossi" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Materia Insegnata</label>
+                            <select id="prof-subject" onchange="suggestDedication()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="italiano">Italiano / Letteratura</option>
+                                <option value="latino">Latino / Greco Antico</option>
+                                <option value="matematica">Matematica</option>
+                                <option value="fisica">Fisica</option>
+                                <option value="scienze">Chimica / Biologia / Scienze</option>
+                                <option value="storia">Storia / Filosofia</option>
+                                <option value="inglese">Inglese / Lingue</option>
+                                <option value="arte">Arte / Disegno Tecnico</option>
+                                <option value="ginnastica">Scienze Motorie (Ginnastica)</option>
+                                <option value="generica">Altro / Ruolo Generico</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Dedica d'Invito Personalizzata</label>
+                            <button type="button" onclick="suggestDedication(true)" class="text-[9px] text-indigo-400 hover:text-indigo-300 font-bold uppercase">Reset Testo Materia</button>
+                        </div>
+                        <textarea id="prof-dedication" rows="3" placeholder="Scrivi qualcosa di divertente o affettuoso legato alla sua materia..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition">
+                        ➕ Aggiungi alla Lista
+                    </button>
+                </form>
+            </div>
+
+            <!-- 3. LISTA DEI PROFESSORI INSERITI -->
+            <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300">Professori in Lista</h3>
+                    <span id="prof-count" class="bg-indigo-950 text-indigo-400 border border-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 prof</span>
+                </div>
+                <div id="prof-list-container" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    <!-- Iniettato via JS -->
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                    <button onclick="loadSampleDataset()" class="text-indigo-400 hover:text-indigo-300 font-bold">Carica Esempi per Materia</button>
+                    <button onclick="clearAllProfs()" class="text-rose-400 hover:text-rose-300 font-bold">Resetta Tutto</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLONNA DESTRA: Visualizzazione Real-Time in scala 3:4 ed Esportazione Immagine -->
+        <div class="lg:col-span-7 flex flex-col items-center">
+            
+            <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 w-full max-w-[460px] flex flex-col items-center shadow-2xl">
+                
+                <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Anteprima d'Invito (Formato 3:4)</h3>
+                        <p id="current-subject-label" class="text-[10px] text-indigo-400 font-bold uppercase">Nessuno</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="preview-selector" onchange="changePreviewSelect(this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 font-semibold focus:outline-none">
+                            <option value="">Nessuno</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- L'INVITO REALE IN ANTEPRIMA -->
+                <div class="relative shadow-2xl rounded-2xl overflow-hidden card-ratio-3-4 border border-slate-800 bg-slate-950 flex items-center justify-center" id="card-render-target">
+                    <p class="text-slate-500 text-xs text-center px-8">Carica i professori di esempio o inseriscine uno a sinistra per visualizzare la cartolina d'invito.</p>
+                </div>
+
+                <!-- AZIONI SULLA CARTOLINA ATTIVA -->
+                <div class="mt-6 w-full flex flex-col gap-2">
+                    <button onclick="downloadCurrentCardImage()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50">
+                        📸 Scarica come Immagine (PNG)
+                    </button>
+                    <p class="text-[10px] text-slate-500 text-center">L'immagine generata sarà ad altissima risoluzione (1200x1600 px), perfetta da inoltrare su WhatsApp o stampare.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Canvas nascosto per l'esportazione ad alta fedeltà delle immagini PNG -->
+    <canvas id="export-canvas" width="1200" height="1600" class="hidden"></canvas>
+
+    <script>
+        // Database dei Prof
+        let professors = [];
+
+        // Definizione ricca di stili, colori, icone e pattern complessi per ogni materia
+        const subjectStyles = {
+            italiano: {
+                name: "Italiano / Letteratura",
+                bgGradient: ["#F9F6F0", "#EFE9DB"],
+                accentColor: "#7A5230",
+                textColor: "#2B1A0E",
+                fontFamily: "'Playfair Display', serif",
+                badge: "Cattedra di Lettere",
+                icon: "✒️",
+                // Disegno ad alta definizione di righe di testo sfocate e citazioni d'autore nel background
+                drawBackground: (ctx, w, h) => {
+                    ctx.strokeStyle = "rgba(122, 82, 48, 0.08)";
+                    ctx.lineWidth = 1;
+                    for (let i = 80; i < h; i += 30) {
+                        ctx.beginPath();
+                        ctx.moveTo(40, i);
+                        ctx.lineTo(w - 40, i);
+                        ctx.stroke();
+                    }
+                    ctx.fillStyle = "rgba(122, 82, 48, 0.04)";
+                    ctx.font = "italic 40px 'Playfair Display'";
+                    ctx.fillText("Nel mezzo del cammin di nostra vita...", 50, 180);
+                    ctx.fillText("Amor ch'a nullo amato amar perdona", 80, 520);
+                    ctx.fillText("Sempre caro mi fu quest'ermo colle...", 40, 950);
+                    ctx.fillText("S'ode a destra uno squillo di tromba", 100, 1320);
+                    // Ghirlanda classica decorativa
+                    ctx.strokeStyle = "rgba(122, 82, 48, 0.15)";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(w/2, 220, 130, 0, Math.PI * 2);
+                    ctx.stroke();
+                },
+                defaultDedication: "Tra una divina commedia e un'interrogazione dell'ultimo minuto, siamo giunti all'ultimo canto. Vi invitiamo a celebrare con noi l'inizio del nostro 'Paradiso'!"
+            },
+            latino: {
+                name: "Latino e Greco Antico",
+                bgGradient: ["#FAF8F5", "#EDE6D9"],
+                accentColor: "#8E2424",
+                textColor: "#3A0F0F",
+                fontFamily: "'Cinzel', serif",
+                badge: "Studia Humanitatis",
+                icon: "🏛️",
+                drawBackground: (ctx, w, h) => {
+                    // Greca classica geometrica come cornice di sfondo
+                    ctx.strokeStyle = "rgba(142, 36, 36, 0.08)";
+                    ctx.lineWidth = 6;
+                    ctx.strokeRect(30, 30, w - 60, h - 60);
+                    
+                    ctx.fillStyle = "rgba(142, 36, 36, 0.04)";
+                    ctx.font = "bold 140px 'Cinzel'";
+                    ctx.textAlign = "center";
+                    ctx.fillText("Ω", w/2 - 250, h/2 - 100);
+                    ctx.fillText("α", w/2 + 250, h/2 + 200);
+                    ctx.fillText("SPQR", w/2, h - 250);
+                    ctx.font = "italic 32px 'Playfair Display'";
+                    ctx.fillText("Carpe Diem", w/2, 380);
+                    ctx.fillText("Est modus in rebus", w/2, h/2 + 50);
+                    ctx.textAlign = "left";
+                },
+                defaultDedication: "Audaces fortuna iuvat! Lasciamo per una sera le versioni e i paradigmi nel cassetto per goderci un convivio degno dei migliori simposi classici."
+            },
+            matematica: {
+                name: "Matematica",
+                bgGradient: ["#0F172A", "#1E293B"],
+                accentColor: "#38BDF8",
+                textColor: "#F1F5F9",
+                fontFamily: "'Fira Code', monospace",
+                badge: "Logica & Analisi",
+                icon: "📐",
+                drawBackground: (ctx, w, h) => {
+                    // Griglia millimetrata di sfondo
+                    ctx.strokeStyle = "rgba(56, 189, 248, 0.07)";
+                    ctx.lineWidth = 1;
+                    const gridSize = 40;
+                    for (let x = 0; x < w; x += gridSize) {
+                        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+                    }
+                    for (let y = 0; y < h; y += gridSize) {
+                        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                    }
+                    // Equazioni ed assi cartesiani
+                    ctx.strokeStyle = "rgba(56, 189, 248, 0.2)";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(100, h - 200); ctx.lineTo(w - 100, h - 200); ctx.stroke(); // Asse X
+                    ctx.beginPath(); ctx.moveTo(200, 100); ctx.lineTo(200, h - 100); ctx.stroke(); // Asse Y
+                    
+                    // Curva gaussiana disegnata
+                    ctx.strokeStyle = "rgba(56, 189, 248, 0.25)";
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    for(let x=100; x<w-100; x++) {
+                        let y = h - 200 - Math.exp(-Math.pow((x - w/2)/120, 2)) * 300;
+                        if(x===100) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+
+                    // Simboli matematici sparsi
+                    ctx.fillStyle = "rgba(56, 189, 248, 0.12)";
+                    ctx.font = "bold 55px 'Fira Code'";
+                    ctx.fillText("f(x) = lim (x→∞)", 100, 150);
+                    ctx.fillText("∫ e^x dx = e^x", w - 400, 320);
+                    ctx.fillText("π ≈ 3.14159", 80, 580);
+                    ctx.fillText("√x² + y² = z", w - 380, h/2 + 220);
+                    ctx.fillText("∞", w/2 - 40, h - 350);
+                },
+                defaultDedication: "Dimostriamo matematicamente che la probabilità che lei si diverta alla nostra cena di classe è pari a 1! Nessun limite o derivata stasera, festeggiamo!"
+            },
+            fisica: {
+                name: "Fisica",
+                bgGradient: ["#050B14", "#0D1E36"],
+                accentColor: "#A855F7",
+                textColor: "#F3E8FF",
+                fontFamily: "'Fira Code', monospace",
+                badge: "Meccanica & Relatività",
+                icon: "⚛️",
+                drawBackground: (ctx, w, h) => {
+                                    // Orbite ellittiche planetarie ed atomiche
+                    ctx.strokeStyle = "rgba(168, 85, 247, 0.1)";
+                    ctx.lineWidth = 2;
+                    ctx.save();
+                    ctx.translate(w/2, h/2);
+                    for(let i=0; i<3; i++) {
+                        ctx.rotate(Math.PI / 3);
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, 350, 120, 0, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+
+                    // Equazioni della fisica famose
+                    ctx.fillStyle = "rgba(168, 85, 247, 0.15)";
+                    ctx.font = "bold 60px 'Fira Code'";
+                    ctx.fillText("E = mc²", 80, 180);
+                    ctx.fillText("F = m · a", w - 360, 340);
+                    ctx.fillText("Δp · Δx ≥ ℏ/2", 100, h/2 + 150);
+                    ctx.fillText("λ = h/p", w - 280, h - 380);
+                    
+                    // Linee vettoriali di campo magnetico
+                    ctx.strokeStyle = "rgba(168, 85, 247, 0.05)";
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < h; i += 60) {
+                        ctx.beginPath();
+                        ctx.arc(w/2, h/2, i, 0, Math.PI, true);
+                        ctx.stroke();
+                    }
+                },
+                defaultDedication: "Un corpo in movimento tende a rimanere in movimento... verso la nostra cena! Venga a testare sperimentalmente la legge di conservazione del buon cibo!"
+            },
+            scienze: {
+                name: "Scienze / Chimica / Biologia",
+                bgGradient: ["#F0FDF4", "#DCFCE7"],
+                accentColor: "#16A34A",
+                textColor: "#14532D",
+                fontFamily: "'Montserrat', sans-serif",
+                badge: "Biologia & Chimica",
+                icon: "🧬",
+                drawBackground: (ctx, w, h) => {
+                    // Disegno molecole esagonali intrecciate sullo sfondo
+                    ctx.strokeStyle = "rgba(22, 163, 74, 0.08)";
+                    ctx.lineWidth = 3;
+                    
+                    const drawHex = (cx, cy, r) => {
+                        ctx.beginPath();
+                        for (let i = 0; i < 6; i++) {
+                            let angle = (Math.PI / 3) * i;
+                            let x = cx + r * Math.cos(angle);
+                            let y = cy + r * Math.sin(angle);
+                            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                        }
+                        ctx.closePath();
+                        ctx.stroke();
+                    };
+
+                    drawHex(150, 150, 80);
+                    drawHex(270, 220, 80);
+                    drawHex(w - 200, 400, 100);
+                    drawHex(w - 350, 485, 100);
+                    drawHex(200, h - 300, 90);
+
+                    // Doppia elica DNA stilizzata sul lato destro
+                    ctx.strokeStyle = "rgba(22, 163, 74, 0.05)";
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    for (let y = 50; y < h - 50; y += 5) {
+                        let x1 = w - 80 + Math.sin(y * 0.02) * 50;
+                        let x2 = w - 80 - Math.sin(y * 0.02) * 50;
+                        ctx.fillStyle = "rgba(22, 163, 74, 0.1)";
+                        ctx.fillRect(x1 - 4, y - 2, 8, 4);
+                        ctx.fillRect(x2 - 4, y - 2, 8, 4);
+                        if(y % 30 === 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y);
+                            ctx.lineTo(x2, y);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Formule chimiche sparse
+                    ctx.fillStyle = "rgba(22, 163, 74, 0.12)";
+                    ctx.font = "bold 50px 'Montserrat'";
+                    ctx.fillText("H₂O + CO₂ ➔ C₆H₁₂O₆", 80, 280);
+                    ctx.fillText("pH < 7", 100, 600);
+                    ctx.fillText("ATP ➔ ADP + Pi", w - 420, h - 250);
+                },
+                defaultDedication: "Niente reazioni esotermiche pericolose stasera! Abbiamo sintetizzato la formula perfetta per una serata indimenticabile: tanta allegria e ottimo cibo."
+            },
+            storia: {
+                name: "Storia e Filosofia",
+                bgGradient: ["#FCF9F2", "#F3EDE0"],
+                accentColor: "#C2410C",
+                textColor: "#431407",
+                fontFamily: "'Cinzel', serif",
+                badge: "Pensiero & Cronaca",
+                icon: "⏳",
+                drawBackground: (ctx, w, h) => {
+                    // Disegno cerchi concentrici (bussola/astrolabio antico)
+                    ctx.strokeStyle = "rgba(194, 65, 12, 0.06)";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(w/2, h/2 - 100, 300, 0, Math.PI*2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(w/2, h/2 - 100, 280, 0, Math.PI*2);
+                    ctx.stroke();
+                    // Linee radiali
+                    for(let i=0; i<12; i++) {
+                        let angle = (Math.PI / 6) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(w/2, h/2 - 100);
+                        ctx.lineTo(w/2 + 300*Math.cos(angle), h/2 - 100 + 300*Math.sin(angle));
+                        ctx.stroke();
+                    }
+
+                    // Citazioni latine e greche
+                    ctx.fillStyle = "rgba(194, 65, 12, 0.12)";
+                    ctx.font = "bold 42px 'Cinzel'";
+                    ctx.fillText("COGITO ERGO SUM", 80, 180);
+                    ctx.fillText("HISTORIA MAGISTRA VITAE", w - 620, 380);
+                    ctx.fillText("PANTA RHEI", 100, h - 350);
+                    
+                    // Numeri romani fluttuanti
+                    ctx.font = "italic 80px 'Cinzel'";
+                    ctx.fillText("MCMXXVI", w - 450, h/2 + 250);
+                },
+                defaultDedication: "Un evento storico memorabile che merita di essere vissuto! Lasciamo da parte per una sera i grandi filosofi del passato per goderci la felicità del presente."
+            },
+            inglese: {
+                name: "Inglese / Lingue Straniere",
+                bgGradient: ["#F0F7FF", "#E0F2FE"],
+                accentColor: "#1D4ED8",
+                textColor: "#1E3A8A",
+                fontFamily: "'Montserrat', sans-serif",
+                badge: "Foreign Languages",
+                icon: "🇬🇧",
+                drawBackground: (ctx, w, h) => {
+                    // Pattern geometrico a strisce (ispirato vagamente alla bandiera)
+                    ctx.strokeStyle = "rgba(29, 78, 216, 0.04)";
+                    ctx.lineWidth = 40;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0); ctx.lineTo(w, h); ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(w, 0); ctx.lineTo(0, h); ctx.stroke();
+
+                    // Parole in inglese tipiche
+                    ctx.fillStyle = "rgba(29, 78, 216, 0.08)";
+                    ctx.font = "black 65px 'Montserrat'";
+                    ctx.fillText("KEEP CALM", 100, 200);
+                    ctx.fillText("& PARTY ON", 130, 270);
+                    ctx.fillText("SHAKESPEARE", w - 480, 480);
+                    ctx.fillText("TO BE OR NOT TO BE", 80, h/2 + 250);
+                    ctx.fillText("LONDON CALLING", w - 540, h - 250);
+                },
+                defaultDedication: "Dear Professor, we have finally reached the final chapter of our high school journey! Please, join us for our 'grand finale' dinner. No grammar tests, we promise!"
+            },
+            arte: {
+                name: "Arte e Disegno",
+                bgGradient: ["#FFF5F5", "#FFE4E6"],
+                accentColor: "#DB2777",
+                textColor: "#4C0519",
+                fontFamily: "'Caveat', cursive",
+                badge: "Sezione Belle Arti",
+                icon: "🎨",
+                drawBackground: (ctx, w, h) => {
+                    // Splatters e schizzi di vernice simulati
+                    ctx.fillStyle = "rgba(219, 39, 119, 0.05)";
+                    for (let i = 0; i < 15; i++) {
+                        ctx.beginPath();
+                        ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 80 + 20, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    // Cerchi e linee da prospettiva architettonica di sfondo
+                    ctx.strokeStyle = "rgba(219, 39, 119, 0.1)";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(w/2, h/2, 250, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(50, 50); ctx.lineTo(w-50, h-50); ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(w-50, 50); ctx.lineTo(50, h-50); ctx.stroke();
+
+                    ctx.fillStyle = "rgba(219, 39, 119, 0.15)";
+                    ctx.font = "bold 60px 'Caveat'";
+                    ctx.fillText("Sezione Aurea φ", 80, 150);
+                    ctx.fillText("Chiaroscuro", w - 300, 320);
+                    ctx.fillText("Prospettiva", 100, h - 300);
+                },
+                defaultDedication: "Un quadro perfetto! Venga a dipingere con noi l'ultimo, memorabile ricordo di questi bellissimi cinque anni insieme, davanti a un bicchiere di buon vino."
+            },
+            ginnastica: {
+                name: "Scienze Motorie",
+                bgGradient: ["#FFFBEB", "#FEF3C7"],
+                accentColor: "#D97706",
+                textColor: "#451A03",
+                fontFamily: "'Montserrat', sans-serif",
+                badge: "Reparto Sportivo",
+                icon: "⚡",
+                drawBackground: (ctx, w, h) => {
+                    // Linee di un campo da basket o pista di atletica
+                    ctx.strokeStyle = "rgba(217, 119, 6, 0.08)";
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(50, 50, w - 100, h - 100);
+                    
+                    ctx.beginPath();
+                    ctx.arc(w/2, h/2, 150, 0, Math.PI, false);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(50, h/2);
+                    ctx.lineTo(w - 50, h/2);
+                    ctx.stroke();
+
+                    // Parole chiave atletiche
+                    ctx.fillStyle = "rgba(217, 119, 6, 0.12)";
+                    ctx.font = "black 65px 'Montserrat'";
+                    ctx.fillText("FAIR PLAY", 100, 200);
+                    ctx.fillText("MEN SANA", w - 420, 350);
+                    ctx.fillText("IN CORPORE SANO", 80, h - 250);
+                },
+                defaultDedication: "Un meritatissimo terzo tempo! Niente flessioni o giri di campo questa volta. Ci troviamo direttamente a tavola per un ottimo riscaldamento gastronomico!"
+            },
+            generica: {
+                name: "Generica / Altro Ruolo",
+                bgGradient: ["#FAF5FF", "#F3E8FF"],
+                accentColor: "#7C3AED",
+                textColor: "#3B0764",
+                fontFamily: "'Montserrat', sans-serif",
+                badge: "Invito d'Onore",
+                icon: "⭐",
+                drawBackground: (ctx, w, h) => {
+                    // Pattern a pois / coriandoli festosi
+                    ctx.fillStyle = "rgba(124, 58, 237, 0.05)";
+                    for (let i = 0; i < 30; i++) {
+                        ctx.beginPath();
+                        ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 15 + 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.strokeStyle = "rgba(124, 58, 237, 0.1)";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(40, 40, w-80, h-80);
+                    ctx.strokeRect(50, 50, w-100, h-100);
+                },
+                defaultDedication: "Per averci sopportato, supportato e ispirato in questi cinque anni di intenso cammino scolastico. Vogliamo ringraziarla e festeggiare con lei in allegria!"
+            }
+        };
+
+        // Inizializzazione al caricamento
+        window.onload = function() {
+            const saved = localStorage.getItem('cena_prof_inviti');
+            if (saved) {
+                professors = JSON.parse(saved);
+            } else {
+                loadSampleDataset();
+            }
+            renderProfList();
+            updateCurrentPreview();
+        };
+
+        function saveState() {
+            localStorage.setItem('cena_prof_inviti', JSON.stringify(professors));
+        }
+
+        // Caricamento dei predefiniti per test rapido
+        function loadSampleDataset() {
+            professors = [
+                { id: 'p1', name: 'Prof.ssa Rossella Bianchi', subject: 'italiano', dedication: "Tra una Divina Commedia e un canto di Leopardi, siamo giunti all'ultimo capitolo del nostro cammino. Unisciti a noi per comporre questo splendido finale!" },
+                { id: 'p2', name: 'Prof. Giovanni Verdi', subject: 'matematica', dedication: "Dimostriamo matematicamente che la probabilità che lei si diverta alla nostra cena di classe è pari al 100%! Niente limiti stasera." },
+                { id: 'p3', name: 'Prof. Mario Rossi', subject: 'fisica', dedication: "Un corpo in movimento tende a rimanere in movimento verso la nostra cena! Venga a testare sperimentalmente la conservazione del buon cibo!" },
+                { id: 'p4', name: 'Prof.ssa Adele Gialli', subject: 'inglese', dedication: "Dear Prof, we've finally reached the end of this year! Please join our party for the ultimate grand finale. No grammar tests allowed!" }
+            ];
+            saveState();
+            renderProfList();
+            updateCurrentPreview();
+        }
+
+        function clearAllProfs() {
+            if (confirm("Sei sicuro di voler svuotare l'elenco dei professori?")) {
+                professors = [];
+                saveState();
+                renderProfList();
+                updateCurrentPreview();
+            }
+        }
+
+        // Suggeritore automatico di dediche in base alla materia selezionata
+        function suggestDedication(force = false) {
+            const subject = document.getElementById('prof-subject').value;
+            const currentDedication = document.getElementById('prof-dedication').value.trim();
+            if (!currentDedication || force) {
+                document.getElementById('prof-dedication').value = subjectStyles[subject].defaultDedication;
+            }
+        }
+
+        // Aggiungi un nuovo professore
+        function addProfessor(event) {
+            event.preventDefault();
+            const name = document.getElementById('prof-name').value.trim();
+            const subject = document.getElementById('prof-subject').value;
+            let dedication = document.getElementById('prof-dedication').value.trim();
+
+            if (!dedication) {
+                dedication = subjectStyles[subject].defaultDedication;
+            }
+
+            const newProf = {
+                id: 'prof_' + Date.now(),
+                name,
+                subject,
+                dedication
+            };
+
+            professors.push(newProf);
+            saveState();
+            renderProfList();
+            
+            // Imposta l'anteprima su quello appena creato
+            document.getElementById('preview-selector').value = newProf.id;
+            updateCurrentPreview();
+
+            // Resetta campi
+            document.getElementById('prof-name').value = "";
+            document.getElementById('prof-dedication').value = "";
+        }
+
+        // Rimuove un prof
+        function deleteProf(id) {
+            professors = professors.filter(p => p.id !== id);
+            saveState();
+            renderProfList();
+            updateCurrentPreview();
+        }
+
+        // Aggiorna l'elenco dei prof e la select di anteprima
+        function renderProfList() {
+            const listContainer = document.getElementById('prof-list-container');
+            const countSpan = document.getElementById('prof-count');
+            const selector = document.getElementById('preview-selector');
+            
+            countSpan.innerText = `${professors.length} prof`;
+
+            if (professors.length === 0) {
+                listContainer.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">Nessun professore in elenco.</p>`;
+                selector.innerHTML = `<option value="">Seleziona un prof</option>`;
+                return;
+            }
+
+            listContainer.innerHTML = professors.map(p => `
+                <div class="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl hover:border-slate-700 transition">
+                    <div class="cursor-pointer flex-grow" onclick="changePreviewSelect('${p.id}')">
+                        <div class="font-bold text-xs text-white">${p.name}</div>
+                        <div class="text-[10px] text-slate-400 capitalize flex items-center gap-1.5 mt-0.5">
+                            <span class="w-2 h-2 rounded-full inline-block" style="background-color: ${subjectStyles[p.subject].accentColor}"></span>
+                            ${subjectStyles[p.subject].name}
+                        </div>
+                    </div>
+                    <button onclick="deleteProf('${p.id}')" class="text-rose-500 hover:text-rose-400 p-1.5 text-xs rounded-lg hover:bg-rose-950/30 transition">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+
+            // Salva selezione corrente
+            const previousSelection = selector.value;
+            
+            selector.innerHTML = professors.map(p => `
+                <option value="${p.id}">${p.name} (${p.subject})</option>
+            `).join('');
+
+            if (professors.some(p => p.id === previousSelection)) {
+                selector.value = previousSelection;
+            } else {
+                selector.value = professors[0].id;
+            }
+        }
+
+        function changePreviewSelect(id) {
+            document.getElementById('preview-selector').value = id;
+            updateCurrentPreview();
+        }
+
+        // Genera il codice HTML in proporzione 3:4 per lo schermo
+        function updateCurrentPreview() {
+            const selectedId = document.getElementById('preview-selector').value;
+            const target = document.getElementById('card-render-target');
+            const label = document.getElementById('current-subject-label');
+
+            const prof = professors.find(p => p.id === selectedId);
+
+            if (!prof) {
+                target.innerHTML = `<p class="text-slate-500 text-xs text-center px-8">Nessun professore selezionato.</p>`;
+                label.innerText = "Nessuno";
+                return;
+            }
+
+            const style = subjectStyles[prof.subject] || subjectStyles.generica;
+            label.innerText = style.name;
+
+            // Variabili dell'evento
+            const eventClass = document.getElementById('event-class').value || "La Classe";
+            const eventLocation = document.getElementById('event-location').value || "Luogo da definire";
+            const eventDate = document.getElementById('event-date').value || "Data da definire";
+            const eventTime = document.getElementById('event-time').value || "Orario da definire";
+            const eventNote = document.getElementById('event-note').value || "";
+
+            // Rendering HTML della cartolina d'anteprima
+            target.innerHTML = `
+                <div class="w-full h-full p-6 flex flex-col justify-between relative select-none" style="background: linear-gradient(135deg, ${style.bgGradient[0]}, ${style.bgGradient[1]}); color: ${style.textColor}; font-family: ${style.fontFamily}">
+                    
+                    <!-- Elementi grafici di sfondo in CSS leggeri per l'anteprima -->
+                    <div class="absolute inset-0 opacity-[0.05] pointer-events-none flex items-center justify-center font-bold text-8xl overflow-hidden">
+                        ${style.icon} ${style.icon} ${style.icon}
+                    </div>
+
+                    <!-- Intestazione -->
+                    <div class="text-center relative z-10">
+                        <span class="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border" style="border-color: ${style.accentColor}; color: ${style.accentColor}">
+                            ${style.badge}
+                        </span>
+                        <div class="text-3xl mt-1">${style.icon}</div>
+                        <h4 class="text-lg font-black uppercase tracking-wider mt-1">Invito Personale</h4>
+                        <div class="w-12 h-[3px] mx-auto mt-1" style="background-color: ${style.accentColor}"></div>
+                    </div>
+
+                    <!-- Dedica centrale -->
+                    <div class="text-center my-auto px-1 relative z-10">
+                        <p class="text-[9px] uppercase tracking-widest opacity-60">Dedicato con affetto a:</p>
+                        <h3 class="text-xl font-extrabold italic mt-1 mb-2 tracking-tight" style="color: ${style.accentColor}">${prof.name}</h3>
+                        <div class="bg-white/45 border border-white/20 p-3 rounded-xl text-xs leading-relaxed italic shadow-xs">
+                            "${prof.dedication}"
+                        </div>
+                    </div>
+
+                    <!-- Dettagli Evento -->
+                    <div class="border-t border-dashed pt-3 relative z-10" style="border-color: ${style.accentColor}50">
+                        <p class="text-center text-[10px] font-bold uppercase tracking-widest mb-2">L'Ultima Cena</p>
+                        <div class="space-y-1 text-[11px] px-1">
+                            <div class="flex items-center gap-1.5">
+                                <span>📍</span>
+                                <div class="truncate"><strong>Dove:</strong> ${eventLocation}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span>📅</span>
+                                <div><strong>Quando:</strong> ${eventDate}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span>🕒</span>
+                                <div><strong>Ora:</strong> ${eventTime}</div>
+                            </div>
+                        </div>
+                        ${eventNote ? `<p class="text-center text-[9px] italic mt-2 font-semibold opacity-90" style="color: ${style.accentColor}">${eventNote}</p>` : ''}
+                    </div>
+
+                    <!-- Firma -->
+                    <div class="text-center mt-2 border-t pt-2" style="border-color: ${style.accentColor}20">
+                        <p class="text-[10px] font-bold tracking-tight" style="color: ${style.accentColor}">I ragazzi della classe ${eventClass}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SISTEMA DI GENERAZIONE E DOWNLOAD PNG AD ALTA RISOLUZIONE ---
+        // Disegna una singola cartolina sul Canvas 1200x1600 e avvia il download del file PNG
+        function renderCardToCanvas(prof, canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;  // 1200
+            const h = canvas.height; // 1600
+            const style = subjectStyles[prof.subject] || subjectStyles.generica;
+
+            // 1. Sfondo gradiente
+            const gradient = ctx.createLinearGradient(0, 0, w, h);
+            gradient.addColorStop(0, style.bgGradient[0]);
+            gradient.addColorStop(1, style.bgGradient[1]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. Disegna i pattern di sfondo specifici della materia
+            style.drawBackground(ctx, w, h);
+
+            // 3. Cornice decorativa interna elegante
+            ctx.strokeStyle = style.accentColor;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(40, 40, w - 80, h - 80);
+            ctx.strokeStyle = "rgba(0,0,0,0.05)";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(48, 48, w - 96, h - 96);
+
+            // 4. Intestazione & Distintivo
+            ctx.fillStyle = style.textColor;
+            ctx.textAlign = "center";
+            
+            // Badge
+            ctx.strokeStyle = style.accentColor;
+            ctx.lineWidth = 3;
+            const badgeText = style.badge.toUpperCase();
+            ctx.font = "bold 26px 'Montserrat', sans-serif";
+            const badgeWidth = ctx.measureText(badgeText).width + 40;
+            ctx.strokeRect(w/2 - badgeWidth/2, 110, badgeWidth, 50);
+            ctx.fillStyle = style.accentColor;
+            ctx.fillText(badgeText, w/2, 144);
+
+            // Icona emoji gigante
+            ctx.font = "100px 'Montserrat'";
+            ctx.fillText(style.icon, w/2, 290);
+
+            // Titolo invito
+            ctx.fillStyle = style.textColor;
+            ctx.font = "black 55px " + style.fontFamily;
+            ctx.fillText("INVITO SPECIALE", w/2, 380);
+
+            // Linea decorativa centrale
+            ctx.strokeStyle = style.accentColor;
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(w/2 - 100, 410);
+            ctx.lineTo(w/2 + 100, 410);
+            ctx.stroke();
+
+            // 5. Destinatario
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.font = "italic 28px 'Montserrat'";
+            ctx.fillText("Dedicato con profondo affetto a:", w/2, 510);
+
+            ctx.fillStyle = style.accentColor;
+            ctx.font = "bold 65px " + style.fontFamily;
+            ctx.fillText(prof.name, w/2, 590);
+
+            // 6. Blocco della Dedica con fondo semi-trasparente
+            const boxX = 120;
+            const boxY = 660;
+            const boxW = w - 240;
+            const boxH = 340;
+            
+            ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(boxX, boxY, boxW, boxH, 24) : ctx.rect(boxX, boxY, boxW, boxH);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Testo della dedica formattato a capo automatico
+            ctx.fillStyle = style.textColor;
+            ctx.font = "italic 36px 'Playfair Display', serif";
+            wrapText(ctx, `"${prof.dedication}"`, w/2, 730, boxW - 80, 52);
+
+            // 7. Dettagli Evento
+            const eventClass = document.getElementById('event-class').value || "La nostra classe";
+            const eventLocation = document.getElementById('event-location').value || "Luogo da definire";
+            const eventDate = document.getElementById('event-date').value || "Data da definire";
+            const eventTime = document.getElementById('event-time').value || "Orario da definire";
+            const eventNote = document.getElementById('event-note').value || "";
+
+            ctx.strokeStyle = "rgba(0,0,0,0.1)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(150, 1080);
+            ctx.lineTo(w - 150, 1080);
+            ctx.stroke();
+
+            ctx.fillStyle = style.textColor;
+            ctx.font = "bold 35px 'Montserrat'";
+            ctx.fillText("L'ULTIMA CENA DI CLASSE", w/2, 1140);
+
+            ctx.font = "34px 'Montserrat'";
+            ctx.textAlign = "left";
+            ctx.fillText("📍  Dove:", 180, 1220);
+            ctx.fillText("📅  Quando:", 180, 1280);
+            ctx.fillText("🕒  Orario:", 180, 1340);
+
+            ctx.font = "bold 34px 'Montserrat'";
+            ctx.fillText(eventLocation, 420, 1220);
+            ctx.fillText(eventDate, 420, 1280);
+            ctx.fillText(eventTime, 420, 1340);
+
+            // Nota finale se presente
+            if (eventNote) {
+                ctx.textAlign = "center";
+                ctx.fillStyle = style.accentColor;
+                ctx.font = "italic bold 32px 'Montserrat'";
+                ctx.fillText(eventNote, w/2, 1420);
+            }
+
+            // 8. Firma
+            ctx.textAlign = "center";
+            ctx.fillStyle = style.accentColor;
+            ctx.font = "bold 38px " + style.fontFamily;
+            ctx.fillText(`Con stima, i ragazzi della ${eventClass}`, w/2, 1510);
+        }
+
+        // Semplice helper per l'andata a capo del testo nel Canvas
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                let metrics = context.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    context.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            context.fillText(line, x, currentY);
+        }
+
+        // Download della cartolina correntemente selezionata
+        function downloadCurrentCardImage() {
+            const selectedId = document.getElementById('preview-selector').value;
+            const prof = professors.find(p => p.id === selectedId);
+
+            if (!prof) {
+                alert("Aggiungi o seleziona un professore prima di esportare!");
+                return;
+            }
+
+            const canvas = document.getElementById('export-canvas');
+            renderCardToCanvas(prof, canvas);
+
+            // Trigger del download della PNG
+            const imageURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `invito_${prof.name.replace(/\s+/g, '_')}.png`;
+            link.href = imageURL;
+            link.click();
+        }
+
+        // Esporta tutti i professori in una volta in formato PNG uno dopo l'altro
+        function downloadAllImages() {
+            if (professors.length === 0) {
+                alert("Nessun professore inserito nella lista!");
+                return;
+            }
+
+            const canvas = document.getElementById('export-canvas');
+            
+            professors.forEach((prof, idx) => {
+                setTimeout(() => {
+                    renderCardToCanvas(prof, canvas);
+                    const imageURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `invito_${prof.name.replace(/\s+/g, '_')}.png`;
+                    link.href = imageURL;
+                    link.click();
+                }, idx * 400); // Ritardo incrementale per non bloccare il browser con download multipli simultanei
+            });
+        }
+
+        // Salva i dati in un file JSON
+        function exportAllData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(professors, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "lista_professori_cena.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+    </script>
+</body>
+</html>
