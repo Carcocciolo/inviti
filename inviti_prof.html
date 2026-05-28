@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generatore Inviti — L'Ultima Cena dei Prof</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,600&family=Fira+Code:wght@400;600;700&family=Cinzel:wght@600;800&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Caveat:wght@600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0c0f;
+    --surface: #13131a;
+    --border: #2a2a35;
+    --muted: #5a5a72;
+    --text: #e8e8f0;
+    --accent: #c9a84c;
+    --danger: #e05252;
+    --success: #4cba8a;
+    --radius: 14px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, #0c0c0f 0%, #1a1225 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-brand .icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), #e8c97a);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .header-brand h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .header-brand p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; border-radius: 9px;
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.18s;
+    padding: 9px 16px;
+  }
+  .btn-ghost { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--border); color: var(--text); }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #e8c97a; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,168,76,0.3); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #5dd4a0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(76,186,138,0.3); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid transparent; font-size: 12px; padding: 4px 8px; border-radius: 7px; }
+  .btn-danger:hover { background: rgba(224,82,82,0.1); border-color: var(--danger); }
+  .btn-link { background: transparent; color: var(--accent); font-size: 10px; padding: 3px 0; text-decoration: underline; text-transform: none; letter-spacing: 0; }
+  .btn-link:hover { color: #e8c97a; }
+
+  /* ─── LAYOUT ─── */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 28px;
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+    header { padding: 14px 20px; }
+  }
+
+  /* ─── PANEL ─── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .panel-header {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+
+  .panel-header h2 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  .panel-header .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ─── FORM ─── */
+  label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-field { margin-bottom: 14px; }
+
+  .field-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 5px;
+  }
+
+  /* ─── PROF LIST ─── */
+  .prof-list { max-height: 220px; overflow-y: auto; }
+
+  .prof-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    gap: 8px;
+  }
+
+  .prof-item:hover, .prof-item.active {
+    border-color: var(--accent);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .prof-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .prof-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .prof-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .pill {
+    display: inline-flex; align-items: center;
+    background: rgba(201,168,76,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+  }
+
+  /* ─── PREVIEW AREA ─── */
+  .preview-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: sticky;
+    top: 100px;
+    align-self: start;
+  }
+
+  .preview-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+  }
+
+  .preview-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap; gap: 10px;
+  }
+
+  .preview-bar h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+  #current-subject-label { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+  /* Card preview wrapper — aspect ratio 3:4 */
+  #card-render-target {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  #card-render-target .placeholder {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 32px;
+    line-height: 1.7;
+  }
+
+  .download-row {
+    margin-top: 16px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+  }
+
+  .download-row .hint {
+    font-size: 10px; color: var(--muted); text-align: center; line-height: 1.6;
+  }
+
+  /* ─── CARD INNER HTML ─── */
+  .card-inner {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 7% 8%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-bg-pattern {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .card-content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; }
+
+  .card-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1.5px solid currentColor;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    align-self: center;
+  }
+
+  .card-icon { text-align: center; font-size: clamp(28px, 6vw, 48px); margin: 6px 0; }
+
+  .card-title {
+    text-align: center;
+    font-size: clamp(13px, 2.8vw, 18px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .card-divider {
+    width: 40px; height: 3px;
+    border-radius: 2px;
+    margin: 8px auto;
+  }
+
+  .card-recipient {
+    text-align: center;
+    margin-top: auto;
+  }
+
+  .card-recipient .to-label {
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.55;
+  }
+
+  .card-recipient .to-name {
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 800;
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+
+  .card-dedication-box {
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(255,255,255,0.7);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin: 10px 0;
+    font-style: italic;
+    font-size: clamp(9px, 1.8vw, 12px);
+    line-height: 1.65;
+    text-align: center;
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .card-event {
+    border-top: 1.5px dashed;
+    padding-top: 9px;
+    margin-top: 8px;
+  }
+
+  .card-event-title {
+    text-align: center;
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.6;
+    margin-bottom: 7px;
+  }
+
+  .card-event-rows { display: flex; flex-direction: column; gap: 4px; }
+
+  .card-event-row {
+    display: flex; align-items: flex-start; gap: 5px;
+    font-size: clamp(8px, 1.5vw, 10px);
+  }
+
+  .card-event-row .ev-icon { font-size: 10px; flex-shrink: 0; margin-top: 1px; }
+
+  .card-note {
+    text-align: center;
+    font-size: 9px;
+    font-style: italic;
+    font-weight: 700;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
+
+  .card-footer {
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px solid;
+    font-size: clamp(7.5px, 1.4vw, 9.5px);
+    font-weight: 700;
+  }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--success);
+    color: var(--text); padding: 12px 20px;
+    border-radius: 10px; font-size: 13px; font-weight: 500;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.3s; pointer-events: none;
+    z-index: 9999; max-width: 300px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ─── LIST BOTTOM ─── */
+  .list-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── SELECT PREVIEW ─── */
+  .preview-selector-wrap { display: flex; align-items: center; gap: 8px; }
+  #preview-selector {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-size: 11px; padding: 5px 10px;
+    border-radius: 8px; cursor: pointer;
+    max-width: 180px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="header-brand">
+    <div class="icon">🎓</div>
+    <div>
+      <h1>L'Ultima Cena dei Prof</h1>
+      <p>Generatore inviti personalizzati · Formato 3:4</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportJSON()">💾 Esporta JSON</button>
+    <button class="btn btn-primary" onclick="downloadAllImages()">⚡ Scarica tutti in PNG</button>
+  </div>
+</header>
+
+<!-- ─── MAIN ─── -->
+<main>
+
+  <!-- ── COLONNA SINISTRA ── -->
+  <div class="left-col">
+
+    <!-- EVENTO -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot"></div>
+        <h2>Dettagli Evento</h2>
+      </div>
+      <div class="form-field">
+        <label>Classe / Scuola</label>
+        <input type="text" id="event-class" value="5F — Liceo Scientifico Fermi" oninput="updatePreview()">
+      </div>
+      <div class="form-field">
+        <label>Luogo / Ristorante</label>
+        <input type="text" id="event-location" value="Trattoria «Il Cantuccio», Via Garibaldi 12" oninput="updatePreview()">
+      </div>
+      <div class="form-row form-field">
+        <div>
+          <label>Data</label>
+          <input type="text" id="event-date" value="Sabato 14 Giugno" oninput="updatePreview()">
+        </div>
+        <div>
+          <label>Orario</label>
+          <input type="text" id="event-time" value="Ore 20:30" oninput="updatePreview()">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Nota finale</label>
+        <input type="text" id="event-note" value="N.B. Sarete nostri ospiti d'onore!" oninput="updatePreview()">
+      </div>
+    </div>
+
+    <!-- AGGIUNGI PROF -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot"></div>
+        <h2>Aggiungi Professore</h2>
+      </div>
+
+      <div class="form-row form-field">
+        <div>
+          <label>Titolo e Nome</label>
+          <input type="text" id="prof-name" placeholder="Prof.ssa Rossi">
+        </div>
+        <div>
+          <label>Materia</label>
+          <select id="prof-subject" onchange="autoFillDedication()">
+            <option value="italiano">Italiano / Letteratura</option>
+            <option value="storia">Storia e Filosofia</option>
+            <option value="matematica">Matematica</option>
+            <option value="fisica">Fisica</option>
+            <option value="scienze">Scienze / Chimica / Bio</option>
+            <option value="informatica">Informatica</option>
+            <option value="inglese">Inglese / Lingue</option>
+            <option value="arte">Arte / Disegno</option>
+            <option value="ginnastica">Scienze Motorie</option>
+            <option value="latino">Latino / Greco</option>
+            <option value="generica">Altro / Direzione</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="field-actions">
+          <label style="margin:0">Dedica personalizzata</label>
+          <button class="btn btn-link" onclick="autoFillDedication(true)">↻ Ripristina predefinita</button>
+        </div>
+        <textarea id="prof-dedication" placeholder="Scrivi la dedica, oppure lascia vuoto per usare quella automatica…"></textarea>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%" onclick="addProfessor()">➕ Aggiungi alla lista</button>
+    </div>
+
+    <!-- LISTA PROF -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot"></div>
+        <h2>Professori in Lista</h2>
+        <span id="prof-count" class="pill" style="margin-left:auto">0</span>
+      </div>
+      <div id="prof-list" class="prof-list">
+        <div class="empty-state">Nessun professore ancora. Aggiungine uno! 👆</div>
+      </div>
+      <div class="list-footer">
+        <button class="btn btn-link" onclick="loadExamples()">Carica esempi</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ Svuota lista</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── COLONNA DESTRA ── -->
+  <div class="preview-col">
+    <div class="preview-wrap">
+
+      <div class="preview-bar">
+        <div>
+          <h3>Anteprima Invito (3:4)</h3>
+          <div id="current-subject-label">—</div>
+        </div>
+        <div class="preview-selector-wrap">
+          <select id="preview-selector" onchange="updatePreview()">
+            <option value="">Seleziona</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="card-render-target">
+        <div class="placeholder">Carica i professori di esempio<br>o aggiungine uno a sinistra<br>per visualizzare l'invito ✨</div>
+      </div>
+
+      <div class="download-row">
+        <button class="btn btn-success" style="width:100%;justify-content:center" onclick="downloadCurrentCard()">
+          📸 Scarica PNG alta risoluzione
+        </button>
+        <p class="hint">L'immagine esportata è a 1200×1600 px — perfetta per WhatsApp o la stampa.</p>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Canvas nascosto per l'export PNG -->
+<canvas id="export-canvas" width="1200" height="1600" style="display:none"></canvas>
+
+<!-- Toast notifica -->
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATI
+// ─────────────────────────────────────────────
+let professors = [];
+let currentPreviewId = null;
+
+const subjects = {
+  italiano: {
+    label: "Italiano · Letteratura",
+    icon: "✒️",
+    badge: "Cattedra di Lettere",
+    accent: "#7A5230",
+    text: "#2B1A0E",
+    bg: ["#F9F6F0", "#EFE9DB"],
+    font: "'Playfair Display', serif",
+    dedication: "Tra una Divina Commedia e un canto di Leopardi, siamo giunti all'ultimo capitolo del nostro percorso. Ci mancheranno le sue interrogazioni… forse. Ci mancherà lei, certamente.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(122,82,48,0.07)";
+      ctx.lineWidth = 1;
+      for (let i = 60; i < h; i += 28) {
+        ctx.beginPath(); ctx.moveTo(50, i); ctx.lineTo(w-50, i); ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(122,82,48,0.04)";
+      ctx.font = "italic 36px 'Playfair Display'";
+      ctx.textAlign = "left";
+      ["Nel mezzo del cammin di nostra vita...", "Amor, ch'a nullo amato amar perdona,", "Sempre caro mi fu quest'ermo colle...", "O bella età de l'oro..."].forEach((q,i) => {
+        ctx.fillText(q, 60, 200 + i*350);
+      });
+      ctx.strokeStyle = "rgba(122,82,48,0.1)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(w/2, 260, 120, 0, Math.PI*2); ctx.stroke();
+    }
+  },
+  storia: {
+    label: "Storia e Filosofia",
+    icon: "⏳",
+    badge: "Pensiero & Cronaca",
+    accent: "#B83A00",
+    text: "#3A0F00",
+    bg: ["#FDF8F2", "#F4E8D8"],
+    font: "'Cinzel', serif",
+    dedication: "Cogito ergo festeggio! Dopo cinque anni di rivoluzioni, guerre mondiali e salti mortali dialettici, è giunto il momento di scrivere assieme l'evento più bello della nostra storia: questa cena.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(184,58,0,0.06)";
+      ctx.lineWidth = 2;
+      for(let i=0;i<12;i++){
+        let a=(Math.PI/6)*i;
+        ctx.beginPath();
+        ctx.moveTo(w/2, h*0.45);
+        ctx.lineTo(w/2+350*Math.cos(a), h*0.45+350*Math.sin(a));
+        ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(w/2, h*0.45, 350, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = "rgba(184,58,0,0.07)";
+      ctx.font = "bold 44px 'Cinzel'";
+      ctx.textAlign = "center";
+      ["COGITO ERGO SUM", "HISTORIA MAGISTRA VITAE", "PANTA REI", "MCMXXI"].forEach((t,i)=>{
+        ctx.fillText(t, w/2, 160 + i*360);
+      });
+    }
+  },
+  matematica: {
+    label: "Matematica",
+    icon: "∑",
+    badge: "Logica & Analisi",
+    accent: "#2ea8e0",
+    text: "#e8f4ff",
+    bg: ["#0d1b2a", "#1a2e42"],
+    font: "'Fira Code', monospace",
+    dedication: "Dimostriamo con rigore assoluto che la probabilità di divertirci stasera tende a 1 per n → ∞ portate. Nessuna derivata, nessun limite: solo la convergenza della gioia.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(46,168,224,0.07)";
+      ctx.lineWidth = 1;
+      for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+      for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+      ctx.strokeStyle = "rgba(46,168,224,0.2)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for(let x=100;x<w-100;x++){
+        let y = h-200 - Math.exp(-Math.pow((x-w/2)/130,2))*300;
+        x===100?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.fillStyle = "rgba(46,168,224,0.12)";
+      ctx.font = "bold 52px 'Fira Code'";
+      ctx.textAlign = "left";
+      ["f(x) = lim (x→∞)", "∫e^x dx = e^x + C", "π ≈ 3.14159...", "∞", "∑ happiness"].forEach((t,i)=>{
+        ctx.fillText(t, 80, 170+i*300);
+      });
+    }
+  },
+  fisica: {
+    label: "Fisica",
+    icon: "⚛️",
+    badge: "Meccanica & Campo",
+    accent: "#a855f7",
+    text: "#f3e8ff",
+    bg: ["#080514", "#150d28"],
+    font: "'Fira Code', monospace",
+    dedication: "Per la seconda legge della termodinamica, ogni sistema tende al disordine: e noi siamo pronti ad applicarla in pieno. Venga a verificare sperimentalmente la conservazione del buon umore.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(168,85,247,0.09)";
+      ctx.lineWidth = 2;
+      ctx.save(); ctx.translate(w/2,h/2);
+      for(let i=0;i<4;i++){
+        ctx.rotate(Math.PI/4);
+        ctx.beginPath(); ctx.ellipse(0,0,380,110,0,0,Math.PI*2); ctx.stroke();
+      }
+      ctx.restore();
+      ctx.fillStyle = "rgba(168,85,247,0.13)";
+      ctx.font = "bold 58px 'Fira Code'";
+      ctx.textAlign = "left";
+      ["E = mc²","F = ma","Δp·Δx ≥ ℏ/2","λ = h/p"].forEach((t,i)=>{
+        ctx.fillText(t, 80, 180+i*360);
+      });
+    }
+  },
+  scienze: {
+    label: "Scienze / Chimica / Bio",
+    icon: "🧬",
+    badge: "Biologia & Chimica",
+    accent: "#16a34a",
+    text: "#052e16",
+    bg: ["#f0fdf4", "#dcfce7"],
+    font: "'DM Sans', sans-serif",
+    dedication: "Abbiamo analizzato ogni elemento della tavola periodica di questi cinque anni e la formula che ne risulta è: C₅H₁₂O ₆ (cinque anni di carboidrati intellettuali). Ora è il momento di festeggiare con quelli veri.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(22,163,74,0.08)";
+      ctx.lineWidth = 3;
+      const hex=(cx,cy,r)=>{
+        ctx.beginPath();
+        for(let i=0;i<6;i++){let a=(Math.PI/3)*i,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+        ctx.closePath(); ctx.stroke();
+      };
+      [[150,150,80],[270,220,80],[w-200,400,100],[w-350,485,100],[200,h-300,90]].forEach(([x,y,r])=>hex(x,y,r));
+      ctx.fillStyle = "rgba(22,163,74,0.10)";
+      ctx.font = "bold 46px 'DM Sans'";
+      ctx.textAlign = "left";
+      ["H₂O + CO₂ → C₆H₁₂O₆","pH < 7 ? Acido : Base","ATP → ADP + Pi","NaCl + H₂O = 🧂"].forEach((t,i)=>{
+        ctx.fillText(t, 60, 200+i*350);
+      });
+    }
+  },
+  informatica: {
+    label: "Informatica",
+    icon: "💻",
+    badge: "Scienze Informatiche",
+    accent: "#22d3ee",
+    text: "#ecfeff",
+    bg: ["#060f12", "#0c1f26"],
+    font: "'Fira Code', monospace",
+    dedication: "Il processo 'scuola.exe' si avvia per l'ultima volta. Dopo 5 anni di bug, eccezioni non gestite e stack overflow mentali, siamo finalmente pronti a fare il deployment nella vita reale. La invitiamo al commit finale: la nostra cena.",
+    canvasBg(ctx, w, h) {
+      // Griglia ASCII-art style
+      ctx.strokeStyle = "rgba(34,211,238,0.05)";
+      ctx.lineWidth = 1;
+      for(let x=0;x<w;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+      for(let y=0;y<h;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+      // Linee di codice finte
+      const lines = [
+        "$ git commit -m 'fine liceo'",
+        "class Studente extends Umano {",
+        "  constructor() {",
+        "    super('stanco');",
+        "  }",
+        "}",
+        "// TODO: find job",
+        "while (fame) eat();",
+        "SELECT * FROM ricordi",
+        "WHERE anno = '5F';",
+        "ping -c 5 prof.scuola.it",
+        "sudo apt upgrade vita",
+      ];
+      ctx.fillStyle = "rgba(34,211,238,0.09)";
+      ctx.font = "500 38px 'Fira Code'";
+      ctx.textAlign = "left";
+      lines.forEach((l,i)=>{
+        ctx.fillText(l, 60, 140+i*120);
+      });
+      // Cursore lampeggiante stilizzato (statico)
+      ctx.fillStyle = "rgba(34,211,238,0.15)";
+      ctx.fillRect(60, 1540, 20, 38);
+    }
+  },
+  inglese: {
+    label: "Inglese / Lingue",
+    icon: "🇬🇧",
+    badge: "Foreign Languages",
+    accent: "#1d4ed8",
+    text: "#1e3a8a",
+    bg: ["#f0f7ff", "#dbeafe"],
+    font: "'DM Sans', sans-serif",
+    dedication: "Dear Professor, we have finally — finally! — reached the last chapter of this five-year saga. No more listening comprehensions, no grammar tests. Just good food, good people, and hopefully no false friends.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(29,78,216,0.05)";
+      ctx.lineWidth = 45;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w,0); ctx.lineTo(0,h); ctx.stroke();
+      ctx.fillStyle = "rgba(29,78,216,0.07)";
+      ctx.font = "black 62px 'DM Sans'";
+      ctx.textAlign = "left";
+      ["KEEP CALM","& PARTY ON","SHAKESPEARE","TO BE OR NOT","TO BE","LONDON CALLING"].forEach((t,i)=>{
+        ctx.fillText(t, 80, 150+i*250);
+      });
+    }
+  },
+  arte: {
+    label: "Arte e Disegno",
+    icon: "🎨",
+    badge: "Belle Arti",
+    accent: "#db2777",
+    text: "#4c0519",
+    bg: ["#fff5f5", "#ffe4e6"],
+    font: "'Caveat', cursive",
+    dedication: "Un quadro non si finisce mai, si abbandona — diceva Picasso. Noi invece il liceo lo abbiamo finito, e con stile. Venga a dipingere con noi quest'ultimo, bellissimo ricordo insieme.",
+    canvasBg(ctx, w, h) {
+      // Splatters
+      const rng = (s) => { let x=Math.sin(s)*10000; return x-Math.floor(x); };
+      ctx.fillStyle = "rgba(219,39,119,0.04)";
+      for(let i=0;i<12;i++){
+        ctx.beginPath();
+        ctx.arc(rng(i*7)*w, rng(i*13)*h, rng(i*3)*70+15, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(219,39,119,0.09)";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(w/2,h/2,260,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle = "rgba(219,39,119,0.13)";
+      ctx.font = "bold 58px 'Caveat'";
+      ctx.textAlign = "left";
+      ["Sezione Aurea φ","Chiaroscuro","Prospettiva","Sfumato","Puntinismo"].forEach((t,i)=>{
+        ctx.fillText(t, 80, 180+i*310);
+      });
+    }
+  },
+  ginnastica: {
+    label: "Scienze Motorie",
+    icon: "🏃",
+    badge: "Reparto Sportivo",
+    accent: "#d97706",
+    text: "#451a03",
+    bg: ["#fffbeb", "#fef3c7"],
+    font: "'DM Sans', sans-serif",
+    dedication: "Finalmente un 'terzo tempo' che vale davvero la pena! Niente flessioni, nessun giro di campo — solo la maratona gastronomica più attesa dell'anno. La griglia di partenza è apparecchiata.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(217,119,6,0.08)";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(60, 60, w-120, h-120);
+      ctx.beginPath(); ctx.arc(w/2,h/2,160,0,Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(60,h/2); ctx.lineTo(w-60,h/2); ctx.stroke();
+      ctx.fillStyle = "rgba(217,119,6,0.10)";
+      ctx.font = "black 62px 'DM Sans'";
+      ctx.textAlign = "left";
+      ["FAIR PLAY","MEN SANA","IN CORPORE SANO","GAME OVER?","NOPE — DINNER!"].forEach((t,i)=>{
+        ctx.fillText(t, 90, 180+i*310);
+      });
+    }
+  },
+  latino: {
+    label: "Latino / Greco Antico",
+    icon: "🏛️",
+    badge: "Studia Humanitatis",
+    accent: "#8e2424",
+    text: "#3a0f0f",
+    bg: ["#faf8f5", "#ede6d9"],
+    font: "'Cinzel', serif",
+    dedication: "Omnia mutantur, nihil interit — ma il ricordo di questi cinque anni rimarrà. Lasciamo versioni e paradigmi nel cassetto per una sera e godiamoci un convivio degno dei migliori simposi.",
+    canvasBg(ctx, w, h) {
+      ctx.strokeStyle = "rgba(142,36,36,0.07)";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(35,35,w-70,h-70);
+      ctx.fillStyle = "rgba(142,36,36,0.05)";
+      ctx.font = "bold 130px 'Cinzel'"; ctx.textAlign = "center";
+      ctx.fillText("Ω", w/2-240, h/2-100);
+      ctx.fillText("α", w/2+240, h/2+200);
+      ctx.fillText("SPQR", w/2, h-260);
+      ctx.font = "italic 36px 'Cinzel'"; ctx.textAlign = "left";
+      ["Carpe Diem","Est modus in rebus","Audaces fortuna iuvat","Dum spiro, spero"].forEach((t,i)=>{
+        ctx.fillText(t, 80, 180+i*360);
+      });
+    }
+  },
+  generica: {
+    label: "Ospite d'Onore",
+    icon: "⭐",
+    badge: "Invito Speciale",
+    accent: "#7c3aed",
+    text: "#3b0764",
+    bg: ["#faf5ff", "#f3e8ff"],
+    font: "'DM Sans', sans-serif",
+    dedication: "Per averci sopportato, guidato e ispirato in questi intensi cinque anni. Siamo cresciuti — anche grazie a lei. Questo invito è piccolo solo nella forma: nel cuore è enorme.",
+    canvasBg(ctx, w, h) {
+      const rng = (s) => { let x=Math.sin(s)*10000; return x-Math.floor(x); };
+      ctx.fillStyle = "rgba(124,58,237,0.04)";
+      for(let i=0;i<25;i++){
+        ctx.beginPath();
+        ctx.arc(rng(i*11)*w, rng(i*17)*h, rng(i*5)*12+4, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = "rgba(124,58,237,0.08)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(45,45,w-90,h-90);
+      ctx.strokeRect(60,60,w-120,h-120);
+    }
+  }
+};
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.onload = () => {
+  const saved = localStorage.getItem('inviti_prof_v2');
+  if (saved) professors = JSON.parse(saved);
+  else loadExamples();
+  renderList();
+  updatePreview();
+  autoFillDedication();
+};
+
+function save() {
+  localStorage.setItem('inviti_prof_v2', JSON.stringify(professors));
+}
+
+// ─────────────────────────────────────────────
+// PROF CRUD
+// ─────────────────────────────────────────────
+function addProfessor() {
+  const name = document.getElementById('prof-name').value.trim();
+  const subject = document.getElementById('prof-subject').value;
+  const dedText = document.getElementById('prof-dedication').value.trim();
+
+  if (!name) { showToast('⚠️ Inserisci il nome del professore!', true); return; }
+
+  const prof = {
+    id: 'p_' + Date.now(),
+    name, subject,
+    dedication: dedText || subjects[subject].dedication
+  };
+
+  professors.push(prof);
+  save();
+  renderList();
+
+  // Seleziona quello appena creato
+  currentPreviewId = prof.id;
+  document.getElementById('preview-selector').value = prof.id;
+  updatePreview();
+
+  document.getElementById('prof-name').value = '';
+  document.getElementById('prof-dedication').value = '';
+  showToast(`✅ ${prof.name} aggiunto!`);
+}
+
+function deleteProf(id, e) {
+  e.stopPropagation();
+  professors = professors.filter(p => p.id !== id);
+  if (currentPreviewId === id) {
+    currentPreviewId = professors.length ? professors[0].id : null;
+  }
+  save();
+  renderList();
+  updatePreview();
+}
+
+function clearAll() {
+  if (!confirm('Svuotare tutta la lista?')) return;
+  professors = [];
+  currentPreviewId = null;
+  save();
+  renderList();
+  updatePreview();
+}
+
+function loadExamples() {
+  professors = [
+    { id: 'e1', name: 'Prof.ssa M. Bianchi',  subject: 'italiano',     dedication: subjects.italiano.dedication },
+    { id: 'e2', name: 'Prof. A. Verdi',        subject: 'matematica',   dedication: subjects.matematica.dedication },
+    { id: 'e3', name: 'Prof.ssa F. Neri',      subject: 'informatica',  dedication: subjects.informatica.dedication },
+    { id: 'e4', name: 'Prof. L. Rossi',        subject: 'storia',       dedication: subjects.storia.dedication },
+    { id: 'e5', name: 'Prof.ssa G. Serra',     subject: 'fisica',       dedication: subjects.fisica.dedication },
+  ];
+  currentPreviewId = 'e1';
+  save();
+  renderList();
+  updatePreview();
+}
+
+// ─────────────────────────────────────────────
+// RENDER LIST
+// ─────────────────────────────────────────────
+function renderList() {
+  const list = document.getElementById('prof-list');
+  const count = document.getElementById('prof-count');
+  const sel = document.getElementById('preview-selector');
+
+  count.textContent = professors.length;
+
+  if (!professors.length) {
+    list.innerHTML = '<div class="empty-state">Nessun professore ancora. Aggiungine uno! 👆</div>';
+    sel.innerHTML = '<option value="">Nessuno</option>';
+    return;
+  }
+
+  list.innerHTML = professors.map(p => `
+    <div class="prof-item ${p.id === currentPreviewId ? 'active' : ''}" onclick="selectProf('${p.id}')">
+      <div class="prof-dot" style="background:${subjects[p.subject].accent}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="prof-name">${p.name}</div>
+        <div class="prof-sub">${subjects[p.subject].label}</div>
+      </div>
+      <button class="btn btn-danger" onclick="deleteProf('${p.id}', event)" title="Rimuovi">✕</button>
+    </div>
+  `).join('');
+
+  const prev = sel.value;
+  sel.innerHTML = professors.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  sel.value = currentPreviewId || professors[0].id;
+}
+
+function selectProf(id) {
+  currentPreviewId = id;
+  document.getElementById('preview-selector').value = id;
+  renderList();
+  updatePreview();
+}
+
+// ─────────────────────────────────────────────
+// AUTO DEDICA
+// ─────────────────────────────────────────────
+function autoFillDedication(force = false) {
+  const subject = document.getElementById('prof-subject').value;
+  const ded = document.getElementById('prof-dedication');
+  if (!ded.value.trim() || force) {
+    ded.value = subjects[subject].dedication;
+  }
+}
+
+// ─────────────────────────────────────────────
+// PREVIEW HTML
+// ─────────────────────────────────────────────
+function updatePreview() {
+  const selId = document.getElementById('preview-selector').value;
+  if (selId) currentPreviewId = selId;
+
+  const target = document.getElementById('card-render-target');
+  const label = document.getElementById('current-subject-label');
+  const prof = professors.find(p => p.id === currentPreviewId);
+
+  if (!prof) {
+    target.innerHTML = '<div class="placeholder">Aggiungi un professore per vedere l\'anteprima ✨</div>';
+    label.textContent = '—';
+    return;
+  }
+
+  const s = subjects[prof.subject] || subjects.generica;
+  label.textContent = s.label;
+
+  const cls  = document.getElementById('event-class').value    || 'La Classe';
+  const loc  = document.getElementById('event-location').value  || '—';
+  const date = document.getElementById('event-date').value      || '—';
+  const time = document.getElementById('event-time').value      || '—';
+  const note = document.getElementById('event-note').value;
+
+  // Scegliamo un font di fallback CSS plausibile
+  const ff = s.font;
+
+  target.innerHTML = `
+    <div class="card-inner" style="background:linear-gradient(135deg,${s.bg[0]},${s.bg[1]});color:${s.text};font-family:${ff}">
+
+      <!-- Pattern di sfondo minimale -->
+      <div class="card-bg-pattern" style="opacity:0.06;font-size:clamp(60px,12vw,90px);display:flex;flex-wrap:wrap;gap:20px;padding:10px;overflow:hidden;align-content:flex-start">
+        ${Array(20).fill(s.icon).join('')}
+      </div>
+
+      <div class="card-content">
+
+        <!-- Intestazione -->
+        <div style="text-align:center">
+          <span class="card-badge" style="color:${s.accent};border-color:${s.accent}">
+            ${s.icon} ${s.badge}
+          </span>
+          <div class="card-icon">${s.icon}</div>
+          <div class="card-title" style="font-family:${ff}">Invito Personale</div>
+          <div class="card-divider" style="background:${s.accent}"></div>
+        </div>
+
+        <!-- Destinatario -->
+        <div class="card-recipient" style="margin-top:10px">
+          <div class="to-label">Dedicato con affetto a:</div>
+          <div class="to-name" style="color:${s.accent};font-family:${ff}">${prof.name}</div>
+        </div>
+
+        <!-- Dedica -->
+        <div class="card-dedication-box" style="color:${s.text}">
+          <span>"${prof.dedication}"</span>
+        </div>
+
+        <!-- Dettagli evento -->
+        <div class="card-event" style="border-color:${s.accent}60">
+          <div class="card-event-title">L'Ultima Cena di Classe</div>
+          <div class="card-event-rows">
+            <div class="card-event-row"><span class="ev-icon">📍</span><div><strong>Dove:</strong> ${loc}</div></div>
+            <div class="card-event-row"><span class="ev-icon">📅</span><div><strong>Quando:</strong> ${date}</div></div>
+            <div class="card-event-row"><span class="ev-icon">🕒</span><div><strong>Ora:</strong> ${time}</div></div>
+          </div>
+          ${note ? `<div class="card-note" style="color:${s.accent}">${note}</div>` : ''}
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer" style="border-color:${s.accent}30;color:${s.accent}">
+          Con affetto, i ragazzi della ${cls}
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// CANVAS EXPORT
+// ─────────────────────────────────────────────
+function renderToCanvas(prof, canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = 1200, H = 1600;
+  const s = subjects[prof.subject] || subjects.generica;
+
+  // Fonti per il canvas (system fallback — le Google Fonts potrebbero non caricare sul canvas in tutti i browser)
+  const canvasFont = s.subject === 'matematica' || s.subject === 'fisica' || s.subject === 'informatica'
+    ? "'Courier New', monospace"
+    : s.font.includes('Cinzel') ? "Georgia, serif"
+    : s.font.includes('Playfair') ? "'Times New Roman', serif"
+    : s.font.includes('Caveat') ? "cursive"
+    : "'Arial', sans-serif";
+
+  // 1. Sfondo
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, s.bg[0]); grad.addColorStop(1, s.bg[1]);
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+
+  // 2. Pattern di sfondo specifico
+  s.canvasBg(ctx, W, H);
+
+  // 3. Cornice
+  ctx.strokeStyle = s.accent; ctx.lineWidth = 5;
+  ctx.strokeRect(45, 45, W-90, H-90);
+  ctx.strokeStyle = "rgba(0,0,0,0.06)"; ctx.lineWidth = 1.5;
+  ctx.strokeRect(55, 55, W-110, H-110);
+
+  // 4. Badge
+  ctx.textAlign = "center";
+  const badgeLabel = (s.icon + " " + s.badge.toUpperCase());
+  ctx.font = `bold 28px ${canvasFont}`;
+  const bw = ctx.measureText(badgeLabel).width + 50;
+  ctx.strokeStyle = s.accent; ctx.lineWidth = 3;
+  roundRect(ctx, W/2-bw/2, 105, bw, 56, 8);
+  ctx.stroke();
+  ctx.fillStyle = s.accent; ctx.fillText(badgeLabel, W/2, 144);
+
+  // 5. Icona grande
+  ctx.font = "110px sans-serif";
+  ctx.fillText(s.icon, W/2, 310);
+
+  // 6. Titolo
+  ctx.fillStyle = s.text;
+  ctx.font = `bold 62px ${canvasFont}`;
+  ctx.fillText("INVITO PERSONALE", W/2, 400);
+
+  // Linea decorativa
+  ctx.strokeStyle = s.accent; ctx.lineWidth = 9;
+  ctx.beginPath(); ctx.moveTo(W/2-110, 430); ctx.lineTo(W/2+110, 430); ctx.stroke();
+
+  // 7. Destinatario
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  ctx.font = `italic 32px ${canvasFont}`;
+  ctx.fillText("Con profondo affetto per:", W/2, 520);
+
+  ctx.fillStyle = s.accent;
+  ctx.font = `bold italic 68px ${canvasFont}`;
+  ctx.fillText(prof.name, W/2, 615);
+
+  // 8. Box dedica
+  const bx=100, by=670, bw2=W-200, bh=370;
+  ctx.fillStyle = "rgba(255,255,255,0.62)";
+  roundRect(ctx, bx, by, bw2, bh, 22); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 2.5;
+  roundRect(ctx, bx, by, bw2, bh, 22); ctx.stroke();
+
+  ctx.fillStyle = s.text;
+  ctx.font = `italic 36px ${canvasFont}`;
+  wrapText(ctx, `"${prof.dedication}"`, W/2, 740, bw2-80, 50);
+
+  // 9. Sezione evento
+  const cls  = document.getElementById('event-class').value || 'La Classe';
+  const loc  = document.getElementById('event-location').value || '—';
+  const date = document.getElementById('event-date').value || '—';
+  const time = document.getElementById('event-time').value || '—';
+  const note = document.getElementById('event-note').value;
+
+  // Linea separatrice tratteggiata
+  ctx.setLineDash([10, 8]);
+  ctx.strokeStyle = s.accent + "80"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(120, 1090); ctx.lineTo(W-120, 1090); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = s.text;
+  ctx.font = `bold 30px ${canvasFont}`;
+  ctx.fillText("L'ULTIMA CENA DI CLASSE", W/2, 1148);
+
+  ctx.textAlign = "left";
+  ctx.font = `34px ${canvasFont}`;
+  ctx.fillText("📍  Dove:", 180, 1220);
+  ctx.fillText("📅  Quando:", 180, 1290);
+  ctx.fillText("🕒  Orario:", 180, 1360);
+
+  ctx.font = `bold 34px ${canvasFont}`;
+  ctx.fillText(loc, 420, 1220);
+  ctx.fillText(date, 420, 1290);
+  ctx.fillText(time, 420, 1360);
+
+  if (note) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = s.accent;
+    ctx.font = `bold italic 34px ${canvasFont}`;
+    ctx.fillText(note, W/2, 1435);
+  }
+
+  // 10. Firma
+  ctx.textAlign = "center";
+  ctx.fillStyle = s.accent;
+  ctx.font = `bold 38px ${canvasFont}`;
+  ctx.fillText(`Con stima, i ragazzi della ${cls}`, W/2, 1530);
+}
+
+// Helper: arrotonda rettangolo
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+  else {
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+}
+
+// Helper: text wrap
+function wrapText(ctx, text, x, y, maxW, lh) {
+  const words = text.split(' ');
+  let line = '', cy = y;
+  for (let w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line.trim(), x, cy);
+      line = w + ' '; cy += lh;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, cy);
+}
+
+// ─────────────────────────────────────────────
+// DOWNLOAD
+// ─────────────────────────────────────────────
+function downloadCurrentCard() {
+  const prof = professors.find(p => p.id === currentPreviewId);
+  if (!prof) { showToast('⚠️ Seleziona un professore prima!', true); return; }
+  const canvas = document.getElementById('export-canvas');
+  renderToCanvas(prof, canvas);
+  triggerDownload(canvas, `invito_${prof.name.replace(/\s+/g,'_')}.png`);
+  showToast(`📥 Scaricato: ${prof.name}`);
+}
+
+function downloadAllImages() {
+  if (!professors.length) { showToast('⚠️ Nessun professore in lista!', true); return; }
+  const canvas = document.getElementById('export-canvas');
+  professors.forEach((prof, i) => {
+    setTimeout(() => {
+      renderToCanvas(prof, canvas);
+      triggerDownload(canvas, `invito_${prof.name.replace(/\s+/g,'_')}.png`);
+    }, i * 500);
+  });
+  showToast(`⚡ Download di ${professors.length} inviti avviato!`);
+}
+
+function triggerDownload(canvas, filename) {
+  const a = document.createElement('a');
+  a.download = filename;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function exportJSON() {
+  const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(professors, null, 2));
+  const a = document.createElement('a');
+  a.href = data; a.download = 'lista_inviti.json'; a.click();
+  showToast('💾 JSON esportato!');
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--success)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
